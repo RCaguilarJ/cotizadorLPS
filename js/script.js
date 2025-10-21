@@ -1056,10 +1056,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 // si falla, no abortar: continuar con siguientes fallbacks
             }
 
-            // 2) En dispositivos móviles modernos usar Web Share (esto es lo que muestra WhatsApp y otras apps)
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+            // 2) Si el navegador soporta Web Share con archivos, usarlo (esto puede abrir el share sheet en Windows/otros)
             const file = new File([pdfBlob], 'cotizacion_lps.pdf', { type: 'application/pdf' });
-            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Cotización LPS', text: 'Adjunto cotización.' });
                 return { shared: true };
             }
