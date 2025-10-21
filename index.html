@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cotizador LPS</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- jsPDF CDN para generación de PDF cliente-side -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- html2canvas para renderizar HTML a canvas antes de pasarlo a jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+    <!-- Contenedor principal -->
+    <div class="main-container">
+
+        <!-- HEADER Dinámico -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-left">
+                    <img src="img/logosegurosmty.png" alt="Logo Izquierdo">
+                </div>
+                <h3 id="titulo-header">CONOCE EL VALOR DE TU VIDA PRODUCTIVA</h3>
+                <div class="logo-right">
+                    <img src="img/logolps.png" alt="Logo Derecho">
+                </div>
+            </div>
+        </header>
+
+        <!-- Selección del Plan -->
+        <section class="seleccion-plan">
+
+            <!-- Campos de usuario (guardados en localStorage) -->
+            <div class="user-info" id="user-info">
+                <h4>Tus datos</h4>
+                <div class="input-container user-row">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" placeholder="Tu nombre">
+                </div>
+                <div class="input-container user-row">
+                    <label for="correo">Correo:</label>
+                    <input type="email" id="correo" placeholder="tu@correo.com">
+                </div>
+                <div class="input-container user-row">
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" placeholder="(55) 1234 5678">
+            </div>
+
+            <p class="mensaje-final-dotal">CAPITALIZA EL VALOR DE TU VIDA PRODUCTIVA</p>
+            <label for="plan-select">Selecciona un Plan:</label>
+            <select id="plan-select">
+                <option value="" disabled selected>Elige una opción</option>
+                <option value="DOTAL 10">DOTAL 10</option>
+                <option value="RETIRO">RETIRO</option>
+                <option value="VIDA MUJER">VIDA MUJER</option>
+                <option value="FIDEICOMISO EDUCATIVO">FIDEICOMISO EDUCATIVO</option>
+                <option value="SEGURO DE VIDA">SEGURO DE VIDA</option> 
+            </select>
+        </section>
+    
+        <!-- Campos dinámicos -->
+        <section class="campos-container">
+            <div id="campo-inversion" class="campo" style="display: none;">
+                <label for="inversion">Inversión:</label>
+                <div class="input-container">
+                    <input type="text" id="inversion" placeholder="Ingrese inversión">
+                    <!-- <span>Pesos</span> -->
+                </div>
+            </div>
+
+            <!-- Suma Asegurada -->
+            <div id="bloque-suma" style="display: none;">
+                <label>Suma Asegurada:</label>
+                <div class="input-container">
+                    <span id="suma-asegurada-label">$0</span>
+                    <!-- <span>Pesos</span> -->
+                </div>
+            </div>
+
+            <div id="campo-edad" class="campo" style="display: none;">
+                <label for="edad">Edad Actual:</label>
+                <div class="input-container">
+                    <input type="number" id="edad" placeholder="Ingrese edad">
+                    <span>Años</span>
+                </div>
+            </div>  
+
+            <div id="campo-edad-retiro" class="campo" style="display: none;">
+                <label for="edad-retiro">Edad de Retiro:</label>
+                <div class="input-container">
+                    <select id="edad-retiro">
+                        <option value="" disabled selected>Seleccione edad de retiro</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Campo de selección de años de pago -->
+            <div id="campo-anios-pago" class="campo" style="display: none;">
+                <label for="anios-pago">Años de Pago:</label>
+                <div class="input-container">
+                <select id="anios-pago">
+                    <option value="" disabled selected>Seleccione años</option>
+                    <option value="10">10 años</option>
+                    <option value="20">20 años</option>
+                </select>
+                </div>
+            </div>
+
+            <!-- Edad del contratante -->
+            <div id="campo-edad-contratante" class="campo" style="display: none;">
+                <label for="edad-contratante">Edad del Contratante:</label>
+                <div class="input-container">
+                    <input type="number" id="edad-contratante" placeholder="Ingrese edad del contratante">
+                    <span>Años</span>
+                </div>
+            </div>
+
+            <!-- Edad del menor -->
+            <div id="campo-edad-menor" class="campo" style="display: none;">
+                <label for="edad-menor">Edad del Menor:</label>
+                <div class="input-container">
+                    <input type="number" id="edad-menor" placeholder="Ingrese edad del menor">
+                    <span>Años</span>
+                </div>
+            </div>
+   
+            <div id="campo-boton" class="campo" style="display: none;">
+                <button id="generar-calculos">Generar Cálculos</button>
+            </div>
+        </section>
+
+        <!-- Tabla dtotal -->
+        <section id="tabla-dtotal-container" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Años</th>
+                        <th>Edad</th>
+                        <th>Inversión</th>
+                        <th>Recuperación</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-dtotal"></tbody>
+            </table>
+            <p class="nota-inflacion">El Valor se consideró en base de una inflación anual de 4% constante</p>
+        </section>
+
+        <!-- Tabla retiro -->
+        <section id="tabla-retiro-container" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Años</th>
+                        <th>Edad</th>
+                        <th>Inversión</th>
+                        <th>Recuperación Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-retiro"></tbody>
+            </table>
+            <p class="nota-inflacion">El Valor se consideró en base de una inflación anual de 4% constante</p>
+        </section>
+
+        <!-- Tabla vida -->
+        <section id="tabla-vida-container" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                    <th>Años</th>
+                    <th>Edad</th>
+                    <th>Inversión</th>
+                    <th>Recuperación Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-vida"></tbody>
+            </table>
+            <p class="nota-inflacion">El Valor se consideró en base de una inflación anual de 4% constante</p>
+        </section>
+
+        <!-- Tabla para Fideicomiso Educativo -->
+        <section id="tabla-fideicomiso-container" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Años</th>
+                        <th>Edad</th>
+                        <th>Inversión</th>
+                        <th>Recuperación Total</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-fideicomiso"></tbody>
+            </table>
+            <p class="nota-inflacion">El Valor se consideró en base de una inflación anual de 4% constante</p>
+        </section>
+
+        <!-- Tabla SEGURO DE VIDA -->
+        <section id="tabla-segurovida-container" class="table-container" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Años</th>
+                        <th>Edad</th>
+                        <th>Inversión</th>
+                        <th>Suma Asegurada</th>
+                    </tr>
+                </thead>
+            <tbody id="tabla-segurovida"></tbody>
+            </table>
+            <p class="nota-inflacion">El Valor se consideró en base de una inflación anual de 4% constante</p>
+        </section>
+
+
+        <!-- Sección de cálculos finales -->
+        <section id="calculos-finales" class="final-calculos-container" style="display: none;">
+            <div class="fila">
+                <div class="columna"><p>Inversión Total</p></div>
+                <div class="columna"><p>Recuperación Total</p></div>
+            </div>
+
+            <div class="fila">
+                <div class="columna">
+                    <p><strong id="inversion-total">0 Pesos</strong></p>
+                </div>
+                <div class="columna">
+                    <p><strong id="recuperacion-total">0 Pesos</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección de cálculos finales -->
+        <section id="calculos-finales-retiro" class="final-calculos-container" style="display: none;">
+            <div class="fila">
+                <div class="columna"><p>Inversión Total</p></div>
+                <div class="columna"><p>Recuperación Total</p></div>            
+            </div>
+
+            <div class="fila">
+                <div class="columna">
+                    <p><strong id="inversion-total-retiro">0 Pesos</strong></p>
+                </div>
+                <div class="columna">
+                    <p><strong id="recuperacion-total-retiro">0 Pesos</strong></p>
+                </div> 
+            </div>
+        </section>
+
+        <section id="calculos-finales-vida" class="final-calculos-container" style="display: none;">
+            <div class="fila">
+              <div class="columna"><p>Inversión Total</p></div>
+              <div class="columna"><p>Recuperación Total</p></div>
+            </div>
+
+            <div class="fila">
+                <div class="columna">
+                    <p><strong id="inversion-total-vida">0 Pesos</strong></p>
+                </div>
+                <div class="columna">
+                    <p><strong id="recuperacion-total-vida">0 Pesos</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cálculos finales -->
+        <section id="calculos-finales-fideicomiso" class="final-calculos-container" style="display: none;">
+            <div class="fila">
+                <div class="columna"><p>Inversión Total</p></div>
+                <div class="columna"><p>Recuperación Total</p></div>
+            </div>
+
+            <div class="fila">
+                <div class="columna">
+                    <p><strong id="inversion-total-fideicomiso">0 Pesos</strong></p>
+                </div>
+                <div class="columna">
+                    <p><strong id="recuperacion-total-fideicomiso">0 Pesos</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="calculos-finales-segurovida" class="final-calculos-container" style="display: none;">
+            <div class="fila">
+              <div class="columna"><p>Inversión Total</p></div>
+              <div class="columna"><p>Suma Asegurada Total</p></div>
+            </div>
+            <div class="fila">
+                <div class="columna">
+                    <p><strong id="inversion-total-segurovida">0 Pesos</strong></p>
+                </div>
+                <div class="columna">
+                    <p><strong id="suma-total-segurovida">0 Pesos</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Espacio en blanco -->
+        <div class="espacio"></div>
+
+        <!-- Contenedor de acciones: PDF y Enviar por correo -->
+        <section id="acciones-cotizacion" class="acciones-container" style="display: none;">
+            <button id="btn-descargar-pdf">Descargar PDF</button>
+            <button id="btn-enviar-correo">Enviar por correo</button>
+            <!-- Preview opcional del PDF (oculto por defecto) -->
+            <div id="pdf-preview" style="display:none; margin-top:10px;"></div>
+        </section>
+
+        <!-- Mensaje de confirmación para el envío por correo -->
+        <div id="send-confirmation" class="send-confirmation" style="display:none; text-align:center; margin-top:10px;"></div>
+
+        <!-- Área temporal para generar el PDF (se llena dinámicamente) -->
+        <div id="print-area" style="display:none;"></div>
+
+        <p class="mensaje-final-dotal" id="mensaje-final" style="display: none;">
+            NO VEAS EL TIEMPO, VE LOS RESULTADOS
+        </p>
+
+        <!-- Aquí agregamos el nuevo mensaje dinámico -->
+        <p class="mensaje-beneficios" id="mensaje-beneficios" style="display: none;">
+            <!-- Aquí pondremos el texto dependiendo del plan -->
+        </p>
+
+        <!-- Espacio en blanco -->
+        <div class="espacio"></div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Versión 0.5.33</p>
+        </footer>
+
+    </div>
+
+    <script src="js/script.js"></script>
+
+</body>
+</html>

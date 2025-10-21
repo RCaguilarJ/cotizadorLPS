@@ -1,0 +1,376 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* HEADER */
+.header {
+    background-color: #f4f4f4;
+    padding: 10px 30px; /* Espaciado superior/inferior y ahora más espacio lateral */
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%; /* ❗ Para ocupar todo el ancho */
+    margin: 0 auto;
+}
+
+.logo-left img {
+    width: 60%; /* Puedes ajustar aquí: 15% o 18% */
+    max-width: 250px; /* Máximo permitido para que no se vea gigante */
+    height: auto;
+}
+
+.logo-right img {
+    width: 40%; /* Puedes ajustar aquí también */
+    max-width: 300px;
+    height: auto;
+}
+
+#titulo-header {
+    text-align: center;
+    flex-grow: 1;
+    font-size: 24px;
+    color: rgb(36, 76, 90); /* El color azul que acordamos */
+    margin: 0 20px; /* Espacio alrededor del título */
+}
+
+/* Select de Plan */
+.seleccion-plan {
+    margin: 20px;
+}
+
+label {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Ajuste de estilos para el select */
+select {
+    padding: 8px;
+    font-size: 16px;
+    width: auto;
+    min-width: 220px; /* garantiza un mínimo aceptable */
+    text-align: center;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Estilo del Botón */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para acciones de cotización (PDF / Enviar) */
+.acciones-container {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.acciones-container button {
+    padding: 10px 18px;
+    font-size: 15px;
+    border-radius: 6px;
+}
+
+.acciones-container #btn-enviar-correo {
+    background-color: #28a745;
+}
+
+.acciones-container #btn-enviar-correo:hover {
+    background-color: #1e7e34;
+}
+
+/* Estilos para el área que se utilizará para generar el PDF */
+#print-area {
+    background: #fff;
+    color: #222;
+    padding: 20px;
+    width: 794px; /* ancho A4 en px a 96dpi ~ 794 */
+    box-sizing: border-box;
+}
+
+#print-area .header-print {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+#print-area .header-print img {
+    max-height: 60px;
+}
+
+#print-area h2.title-print {
+    font-size: 20px;
+    color: #274b50;
+    text-align: center;
+    margin: 0 10px;
+}
+
+#print-area .user-row-print {
+    display: flex;
+    gap: 12px;
+    margin: 12px 0;
+    font-size: 12px;
+}
+
+#print-area table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#print-area th, #print-area td {
+    border: 1px solid #ccc;
+    padding: 6px 8px;
+    text-align: center;
+    font-size: 12px;
+}
+
+#print-area .totals {
+    display: flex;
+    justify-content: center;
+    gap: 80px;
+    margin-top: 12px;
+}
+
+.send-confirmation {
+    background-color: #e6ffed;
+    border: 1px solid #b7f1c6;
+    color: #0b6623;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+
+.resultado-container {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+.resultado-container p {
+    margin: 5px 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ccc;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.final-calculos-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Espacio vertical entre la fila de títulos y resultados */
+}
+
+.fila {
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+}
+
+.columna {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+    gap: 4px; /* Espacio reducido entre título y cantidad */
+}
+
+.columna p {
+    margin: 0; /* Elimina espacio vertical por defecto de los párrafos */
+}
+
+.nota-inflacion {
+    font-style: italic;
+    font-size: 14px;
+    text-align: center;
+    margin-top: 10px;
+    color: #555;
+}
+
+.mensaje-final-dotal {
+    text-align: center;
+    font-weight: bold;
+    font-size: 14px;
+    color: #555;
+    margin-top: 10px;
+}
+
+.espacio {
+    height: 20px; /* Puedes ajustar a 30px o 40px si quieres más separación */
+}
+
+.footer {
+    font-size: 12px;
+    text-align: center;
+    color: #555;
+}
+
+.mensaje-beneficios {
+    font-family: 'Arial', sans-serif; /* Puedes cambiar si quieres una más elegante */
+    font-size: 14px;
+    color: #555; /* Mismo color de la nota de inflación */
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+
+/* Campos Responsivos */
+.campos-container {
+    display: flex;
+    flex-direction: row; /* en computadoras deben ir uno al lado del otro */
+    gap: 20px;
+    flex-wrap: wrap; /* para que en pantallas chicas puedan saltar */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 20px;
+}
+
+.input-container {
+    display: flex;
+    flex-direction: row; /* ✅ Asegura input y texto en misma fila */
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 10px;
+    gap: 8px; /* Un pequeño espacio entre input y texto */
+}
+
+/* --------------------------------------------------
+   User-info: mostrar los campos del usuario en filas
+   horizontales (label + input en la misma fila) y
+   agrupar los tres campos en una sola línea en desktop
+   -------------------------------------------------- */
+.user-info {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap; /* permite que salten a la siguiente línea si falta espacio */
+    margin-bottom: 10px;
+}
+
+.user-info .input-container {
+    flex-direction: row; /* etiqueta + input en la misma fila */
+    align-items: center;
+    width: auto; /* que no ocupe el 100% */
+    padding: 0 8px;
+}
+
+.user-info .input-container label {
+    display: inline-block; /* evita que la etiqueta sea bloque y salte encima */
+    margin: 0;
+    font-weight: 600;
+    white-space: nowrap; /* evita que la etiqueta haga wrap */
+}
+
+.user-info .input-container input {
+    width: 220px;
+    max-width: 220px;
+}
+
+/* Inputs, selects, y botón generador */
+.input-container input,
+.input-container select,
+#generar-calculos {
+    width: 100%;
+    max-width: 250px; /* ✅ cada input/select no más de 250px */
+    padding: 10px; /* ✅ padding interno más cómodo */
+    font-size: 16px; /* ✅ tamaño de letra decente */
+    box-sizing: border-box;
+}
+
+.input-container span {
+    white-space: nowrap; /* ✅ Evita que el texto salte de línea */
+    font-size: 16px;
+    font-weight: normal;
+    color: #555;
+}
+
+.table-container {
+    /* width: 100%; /* ❗ Ahora ocupa el 100% */
+    padding: 10px 20px; /* Menor padding lateral */
+    margin: 20px 0; /* Sin márgenes automáticos grandes */
+    overflow-x: auto;
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+}
+
+/* Celdas de tabla */
+.table-container th,
+.table-container td {
+    padding: 8px;
+    text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-left,
+    .logo-right {
+        width: 100%;
+        text-align: center;
+        margin: 10px 0;
+    }
+
+    #titulo-header {
+        font-size: 20px;
+    }
+
+    /* SOLO en móvil ahora los inputs en columna */
+    .campos-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
