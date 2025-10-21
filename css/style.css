@@ -286,19 +286,31 @@ th {
    -------------------------------------------------- */
 .user-info {
     display: flex;
-    flex-direction: row;
-    gap: 20px;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap; /* permite que salten a la siguiente línea si falta espacio */
+    flex-direction: column; /* apilar verticalmente */
+    gap: 12px;
+    align-items: center; /* centrar contenido */
     margin-bottom: 10px;
+    width: 100%;
+    max-width: 720px; /* evita que se estire demasiado en pantallas grandes */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .user-info .input-container {
-    flex-direction: row; /* etiqueta + input en la misma fila */
+    flex-direction: column; /* etiqueta encima del input */
     align-items: center;
-    width: auto; /* que no ocupe el 100% */
-    padding: 0 8px;
+    width: 100%;
+    padding: 6px 8px;
+}
+
+.user-info .input-container label {
+    margin-bottom: 6px;
+    text-align: center;
+}
+
+.user-info .input-container input {
+    width: 80%;
+    max-width: 420px;
 }
 
 .user-info .input-container label {
