@@ -1174,6 +1174,6 @@ document.addEventListener("DOMContentLoaded", function () {
         this.value = formatoPesos(valorLimpio);
     });
     
-    // No se guarda información personal del usuario en localStorage
+    // No se guarda ninguna información personal del usuario en localStorage ni sessionStorage.
 
 });
