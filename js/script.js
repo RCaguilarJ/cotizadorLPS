@@ -825,6 +825,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Correo del owner que debe recibir la notificación
     const OWNER_EMAIL = 'hola@desingsgdl.mx';
 
+    // Opcional: endpoint serverless que acepte un PDF (base64) y lo envíe por email.
+    // Si lo configuras, el flujo intentará enviarlo automáticamente al correo del usuario
+    // y/o al owner. Dejar vacio para no usar serverless.
+    const SERVERLESS_ENDPOINT = ''; // ej: 'https://mi-funcion.vercel.app/api/send-pdf'
+
     async function enviarDatosAlOwner() {
         // Validar que se haya configurado el endpoint
         if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes('XXXXXXXX')) {
@@ -997,6 +1002,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    // Enviar el PDF (blob) a un endpoint serverless que haga el envío por correo
+    // Devuelve true si el servidor respondió ok
+    async function enviarPdfAlServidor(pdfBlob, destinoEmail) {
+        if (!SERVERLESS_ENDPOINT) return false;
+
+        try {
+            const arrayBuffer = await pdfBlob.arrayBuffer();
+            const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+            const payload = {
+                to: destinoEmail,
+                filename: 'cotizacion_lps.pdf',
+                content_base64: base64,
+                subject: 'Tu cotización LPS',
+                message: 'Adjunto encontrarás tu cotización generada desde la web.'
+            };
+
+            const res = await fetch(SERVERLESS_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            return res.ok;
+        } catch (err) {
+            console.error('Error enviando PDF al servidor:', err);
+            return false;
+        }
+    }
+
     // Intentar compartir/enviar por correo el PDF generado.
     // Primero generamos el PDF (html2canvas + jsPDF), luego intentamos usar Web Share API con archivos.
     // Si no está disponible, forzamos la descarga y abrimos mailto como fallback.
@@ -1013,15 +1048,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
         try {
             const pdfBlob = pdf.output('blob');
-            const file = new File([pdfBlob], 'cotizacion_lps.pdf', { type: 'application/pdf' });
 
-            // Intentar Web Share con archivos (móviles modernos)
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            // 1) Intentar enviar al servidor serverless si está configurado (envío directo al correo destino)
+            if (SERVERLESS_ENDPOINT) {
+                const ok = await enviarPdfAlServidor(pdfBlob, correoDestino);
+                if (ok) return { shared: true, sentByServer: true };
+                // si falla, no abortar: continuar con siguientes fallbacks
+            }
+
+            // 2) En dispositivos móviles modernos usar Web Share (esto es lo que muestra WhatsApp y otras apps)
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+            const file = new File([pdfBlob], 'cotizacion_lps.pdf', { type: 'application/pdf' });
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ files: [file], title: 'Cotización LPS', text: 'Adjunto cotización.' });
                 return { shared: true };
             }
 
-            // Si no se puede compartir con archivos, forzamos la descarga y abrimos mailto con instrucciones
+            // 3) En escritorio o si Web Share no está disponible: forzar descarga y abrir mailto pre-direccionado al correo del usuario
             const url = URL.createObjectURL(pdfBlob);
             const a = document.createElement('a');
             a.href = url;
@@ -1032,25 +1075,25 @@ document.addEventListener("DOMContentLoaded", function () {
             URL.revokeObjectURL(url);
 
             const nombre = document.getElementById('nombre')?.value || '';
-            const inversionTotal = document.getElementById('inversion-total')?.textContent || '';
-            const recuperacionTotal = document.getElementById('recuperacion-total')?.textContent || '';
+            const inversionTotal = document.getElementById('inversion-total')?.textContent || document.getElementById('inversion-total-retiro')?.textContent || '';
+            const recuperacionTotal = document.getElementById('recuperacion-total')?.textContent || document.getElementById('recuperacion-total-retiro')?.textContent || '';
 
             const subject = encodeURIComponent('Cotización LPS');
             const bodyLines = [];
             bodyLines.push(`Hola ${nombre},`);
-            bodyLines.push('Adjunto encontrarás la cotización generada (he descargado el PDF automáticamente, por favor adjúntalo al correo si es necesario).');
+            bodyLines.push('Adjunto encontrarás la cotización generada (se descargó automáticamente; por favor adjunta el PDF al correo si deseas enviarlo).');
             bodyLines.push('');
             bodyLines.push(`Inversión Total: ${inversionTotal}`);
             bodyLines.push(`Recuperación Total: ${recuperacionTotal}`);
 
             const body = encodeURIComponent(bodyLines.join('\n'));
+            // Pre-llenar el correo del usuario
             window.location.href = `mailto:${correoDestino}?subject=${subject}&body=${body}`;
 
             // No mostrar confirmación aquí (descarga) — el usuario solicitó no notificar en descarga
             return { shared: false };
         } catch (err) {
             console.error('Error preparando envío:', err);
-            // No alertar en descarga/error según la preferencia; devolver estatus
             return { shared: false, error: true };
         }
     }
@@ -1131,39 +1174,6 @@ document.addEventListener("DOMContentLoaded", function () {
         this.value = formatoPesos(valorLimpio);
     });
     
-    // ------ Guardado y recuperación de datos de usuario en localStorage ------
-    const LS_PREFIX = 'lps_';
-    const usuarioFields = [
-        { id: 'nombre', key: LS_PREFIX + 'nombre' },
-        { id: 'correo', key: LS_PREFIX + 'correo' },
-        { id: 'telefono', key: LS_PREFIX + 'telefono' }
-    ];
-
-    function saveUsuarioField(key, value) {
-        try {
-            localStorage.setItem(key, value || '');
-        } catch (e) {
-            console.warn('No se pudo guardar en localStorage', e);
-        }
-    }
-
-    function loadUsuarioField(key) {
-        try {
-            return localStorage.getItem(key) || '';
-        } catch (e) {
-            return '';
-        }
-    }
-
-    // Rellenar inputs al cargar y escuchar cambios para guardar
-    usuarioFields.forEach(f => {
-        const el = document.getElementById(f.id);
-        if (!el) return;
-        el.value = loadUsuarioField(f.key);
-
-        el.addEventListener('input', (ev) => {
-            saveUsuarioField(f.key, ev.target.value);
-        });
-    });
+    // No se guarda información personal del usuario en localStorage
 
 });
